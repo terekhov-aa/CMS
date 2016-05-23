@@ -1,0 +1,8 @@
+  #side_nav
+  {
+    display:block;
+  }
+  #side_nav:target
+  {
+    display:none;
+  }

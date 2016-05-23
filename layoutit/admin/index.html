@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ContentManager</title>
+
+    <link href="layoutit/admin/css/bootstrap.min.css" rel="stylesheet">
+    <link href="layoutit/admin/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <!-- <script src="layoutit/admin/js/jquery.min.js"></script> -->
+    <script src="layoutit/admin/js/bootstrap.min.js"></script>
+    <script src="layoutit/admin/js/scripts.js"></script>
+    <script src="http://cdn.tinymce.com/4/tinymce.min.js"></script>
+
+    <script type="text/javascript" src="layoutit/admin/mustache.js" ></script>
+    <script type="text/javascript">
+    // function openPluginSetting(mod,arg){
+    //     console.log(mod,arg);
+    //     module
+    //     eventName
+    // }
+
+    function openPluginSetting(mod,arg){
+        //$('body').plugincontrol();
+
+        // console.log(mod,arg);
+                $.post(
+              "",
+              {
+                 module: mod,
+                 action: arg
+              },
+              openPluginSettingSucces
+            );
+                function openPluginSettingSucces(data)
+                {
+                    // console.log(data);
+                    var jdata = data != "" ? $.parseJSON(data.trim()) : {};
+                    // console.log('openPluginSettingSucces');
+                     console.log(jdata);
+                    $('#plugin_window')[mod](jdata);
+                    // console.log(jdata);
+                    // var output = Mustache.render('{{qwer}} is a  {{qwer}}', jdata); 
+                    // $("#plugin_window").empty();               
+                    // $("#plugin_window").append(output);
+
+                }
+            }
+
+        function OnAdmMenuLoad(){        
+            $.post(
+                "",
+                {
+                    event: 'OnAdmMenuLoad'
+                },
+                onAjaxSuccess
+            );
+        }
+        function onAjaxSuccess(data)
+        {
+          console.log(data);
+          var jdata = data != "" ? $.parseJSON(data.trim()) : {};
+          console.log(jdata);
+          $("#menu").empty();
+          $.each(jdata, function( index, value ) {
+            $('head').append("<script src='modules/"+value+"/"+value+".js'> <\/script >");
+            $.post(
+                "",
+                {
+                    module: value,
+                    action: 'event',
+                    eventName: 'OnAdmMenuLoad'
+                },
+                addplugin
+            );
+            function addplugin(data){
+                console.log(data);
+                var jdata = data != "" ? $.parseJSON(data.trim()) : {};
+                console.log(jdata); 
+                
+                var output = Mustache.render("<li><a href='#' onclick='openPluginSetting(\""+value+"\",\"{{action}}\"); change_header(\"{{name}}\")'>{{name}}</a></li>", jdata);      
+                $("#menu").append(output);
+            }
+            });
+        }
+    $(document).ready(function(){
+            OnAdmMenuLoad();
+        });
+
+          function change_header(data){
+            console.log(data);
+            $("#header").empty();
+            //var output = Mustache.render("<h1>{{data}}</h1>", data);      
+                $("#header").append("<h1>"+data+"</h1>");
+          }
+            // function w3_open() {
+            // $(".w3-sidenav")[0].style.display = "block";
+            // }
+            // function w3_close() {
+            // $(".w3-sidenav")[0].style.display = "none";
+            // }
+
+    </script>
+
+  </head>
+  <body>
+  <style type="text/css">
+  #side_nav
+  {
+    display:none;
+  }
+  #side_nav:target
+  {
+    display:block;
+  }
+
+  a:hover
+  {
+    text-decoration: none;
+  }
+  </style>
+
+    <div class="container-fluid" style="padding: 0">
+           <div class="row">
+               <div class="col-md-12" onblur="w3_close()">
+                    <nav id='side_nav' class="w3-sidenav w3-white w3-card-2" style="">
+                        <a href='#' class="w3-closenav w3-large">Close &times;</a>
+                        <ul id="menu" class="nav nav-pills nav-stacked">
+                        </ul>   
+                    </nav>
+                    <header class="w3-container w3-teal">
+                        <span class="w3-opennav w3-xlarge"><a href='#side_nav'>&#9776;</a><span id="header"><!-- <h1>My Header</h1> --></span></span>
+                        
+                    </header>   
+               </div>                   
+           </div>
+
+        <div class="row">
+            <div class="col-md-12" id="plugin_window">
+            </div>
+        </div>
+    </div>
+
+  </body>
+</html>
